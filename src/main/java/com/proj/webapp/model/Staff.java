@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "staff")
 @Getter @Setter
@@ -20,7 +23,12 @@ public class Staff extends Person {
     @Column(nullable = false, length = 30)
     private String jobTitle;
 
-    @OneToOne(mappedBy = "staff", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "staff", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private AppUser account;
+
+    @OneToMany(mappedBy = "staff", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @OrderBy("visitedAt DESC")
+    private List<CheckIn> checkIns = new ArrayList<>();
 }

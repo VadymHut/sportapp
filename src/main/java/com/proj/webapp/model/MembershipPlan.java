@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(
         name = "membership_plan",
@@ -12,7 +15,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(exclude = { "prices", "memberships" })
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class MembershipPlan {
 
@@ -38,4 +41,27 @@ public class MembershipPlan {
     @Column(name = "frequency_type", nullable = false, length = 40)
     @EqualsAndHashCode.Include
     private FrequencyType frequencyType;
+
+
+    @OneToMany(
+            mappedBy = "membershipPlan",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = false
+    )
+    @OrderBy("validFrom DESC")
+    @ToString.Exclude
+    private List<PlanPrice> prices = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "membershipPlan",
+            fetch = FetchType.LAZY,
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE }
+    )
+    @OrderBy("startingDate DESC")
+    @ToString.Exclude
+    private List<Membership> memberships = new ArrayList<>();
+
+
+
 }

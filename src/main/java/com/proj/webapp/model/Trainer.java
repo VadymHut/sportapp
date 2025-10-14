@@ -4,11 +4,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "trainer")
 @Getter
 @Setter
-@ToString(callSuper = true)
+@ToString(callSuper = true, exclude = "memberships")
 @NoArgsConstructor
 public class Trainer extends Person
 {
@@ -16,4 +19,12 @@ public class Trainer extends Person
     @Column(nullable = false, length = 40)
     @Enumerated(EnumType.STRING)
     private ActivityType activity;
+
+    @OneToMany(
+            mappedBy = "trainer",
+            fetch = FetchType.LAZY,
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE }
+    )
+    @OrderBy("startingDate DESC")
+    private List<Membership> memberships = new ArrayList<>();
 }
