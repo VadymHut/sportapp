@@ -1,5 +1,6 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -14,9 +15,11 @@ import java.time.LocalDate;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public abstract class Person
 {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long peId;
 
     @NotBlank
@@ -53,18 +56,10 @@ public abstract class Person
     @Column(nullable = false)
     private LocalDate joinedOn;
 
-
     protected boolean canEqual(final Object other)
     {
         return other != null && this.getClass() == other.getClass();
     }
-
-    @Override
-    public int hashCode()
-    {
-        return java.util.Objects.hash(getClass(), personalCode);
-    }
-
 
     private void normalize()
     {
@@ -87,4 +82,3 @@ public abstract class Person
         normalize();
     }
 }
-

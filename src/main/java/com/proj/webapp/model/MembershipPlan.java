@@ -50,7 +50,6 @@ public class MembershipPlan {
             orphanRemoval = false
     )
     @OrderBy("validFrom DESC")
-    @ToString.Exclude
     private List<PlanPrice> prices = new ArrayList<>();
 
     @OneToMany(
@@ -59,7 +58,6 @@ public class MembershipPlan {
             cascade = { CascadeType.PERSIST, CascadeType.MERGE }
     )
     @OrderBy("startingDate DESC")
-    @ToString.Exclude
     private List<Membership> memberships = new ArrayList<>();
 
 
