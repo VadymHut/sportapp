@@ -32,7 +32,7 @@ public class AppUser
 
     @NotBlank
     @Size(max = 50)
-    @Column(name = "login", nullable = false, length = 50, updatable = false, unique = true)
+    @Column(name = "login", nullable = false, length = 50, unique = true)
     @EqualsAndHashCode.Include
     private String login;
 
@@ -52,7 +52,8 @@ public class AppUser
         if (login != null) login = login.trim().toLowerCase();
     }
 
-    public void markLoginNow() {
+    public void markLoginNow()
+    {
         this.lastLoginAt = Instant.now();
     }
 }

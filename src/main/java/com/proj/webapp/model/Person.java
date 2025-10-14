@@ -38,7 +38,6 @@ public abstract class Person
     private String surname;
 
     @NotBlank
-    @Size(min = 12, max = 12)
     @Column(nullable = false, length = 12, unique = true)
     @Pattern(regexp = "^\\d{6}-\\d{5}$", message = "Personal code must follow the format 123456-12345")
     @EqualsAndHashCode.Include
