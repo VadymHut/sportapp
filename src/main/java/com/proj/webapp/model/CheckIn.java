@@ -4,15 +4,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
-@Table(name = "checkin")
+@Table(name = "checkIn")
 @Getter @Setter
 @NoArgsConstructor
 @ToString(exclude = {"membership", "staff"})
-public class CheckIn
-{
+public class CheckIn {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +30,11 @@ public class CheckIn
 
     @NotNull
     @Column(name = "visited_at", nullable = false)
-    private LocalDateTime visitedAt;
+    private Instant visitedAt;
 
+    @PrePersist
+    private void prePersist()
+    {
+        if (visitedAt == null) visitedAt = Instant.now();
+    }
 }

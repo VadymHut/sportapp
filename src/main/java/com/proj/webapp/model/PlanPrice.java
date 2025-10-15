@@ -12,7 +12,8 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @ToString(exclude = "membershipPlan")
-public class PlanPrice {
+public class PlanPrice
+{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
