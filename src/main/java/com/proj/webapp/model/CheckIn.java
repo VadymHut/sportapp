@@ -1,5 +1,6 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -23,12 +24,12 @@ public class CheckIn {
     @NotNull
     private Membership membership;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "s_id", nullable = false)
-    @NotNull
     private Staff staff;
 
-    @NotNull
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY) // client can't set it
     @Column(name = "visited_at", nullable = false)
     private Instant visitedAt;
 
@@ -37,4 +38,7 @@ public class CheckIn {
     {
         if (visitedAt == null) visitedAt = Instant.now();
     }
+
+    @JsonProperty("id")
+    public Long getId() { return chId; }
 }

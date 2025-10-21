@@ -2,6 +2,7 @@ package com.proj.webapp.service;
 
 import com.proj.webapp.model.AppUser;
 import com.proj.webapp.repo.AppUserRepo;
+import com.proj.webapp.repo.StaffRepo;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class AppUserService
 
     private final AppUserRepo appUserRepo;
     private final PasswordEncoder passwordEncoder;
+    private final StaffRepo staffRepo;
 
     public AppUser createAppUser(@Valid @NotNull AppUser appUser)
     {
@@ -30,14 +32,27 @@ public class AppUserService
         {
             throw new IllegalArgumentException("uid should not be set");
         }
+
+        if (appUser.getStaff() == null || appUser.getStaff().getPeId() == null)
+        {
+            throw new IllegalArgumentException("staff id is required");
+        }
+
         appUser.setLogin(appUser.getLogin().trim().toLowerCase());
 
-        if (appUserRepo.existsByStaff(appUser.getStaff())) {
+        var staff = staffRepo.findById(appUser.getStaff().getPeId())
+                .orElseThrow(() -> new IllegalArgumentException("Staff not found: " + appUser.getStaff().getPeId()));
+        appUser.setStaff(staff);
+
+        if (appUserRepo.existsByStaff(staff))
+        {
             throw new IllegalArgumentException("this staff already has an account");
         }
-        if (appUserRepo.existsByLogin(appUser.getLogin())) {
+        if (appUserRepo.existsByLogin(appUser.getLogin()))
+        {
             throw new IllegalArgumentException("login already in use");
         }
+
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
 
         try
@@ -49,6 +64,7 @@ public class AppUserService
             throw new IllegalArgumentException("duplicate login or staff reference");
         }
     }
+
 
     @Transactional(readOnly = true)
     public AppUser getById(@NotNull Long id)

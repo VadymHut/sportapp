@@ -1,5 +1,7 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -50,6 +52,7 @@ public class MembershipPlan {
             orphanRemoval = false
     )
     @OrderBy("validFrom DESC")
+    @JsonIgnore
     private List<PlanPrice> prices = new ArrayList<>();
 
     @OneToMany(
@@ -58,8 +61,10 @@ public class MembershipPlan {
             cascade = { CascadeType.PERSIST, CascadeType.MERGE }
     )
     @OrderBy("startingDate DESC")
+    @JsonIgnore
     private List<Membership> memberships = new ArrayList<>();
 
 
-
+    @JsonProperty("id")
+    public Long getId() { return plId; }
 }

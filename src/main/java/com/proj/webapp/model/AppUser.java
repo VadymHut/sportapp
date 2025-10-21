@@ -1,5 +1,6 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -40,8 +41,9 @@ public class AppUser
 
 
     @NotBlank
-    @Size(min = 60, max = 100)
+    @Size(min = 8, max = 100)
     @Column(name = "password_hash", nullable = false, length = 100)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "last_login_at")
@@ -58,4 +60,7 @@ public class AppUser
     {
         this.lastLoginAt = Instant.now();
     }
+
+    @JsonProperty("id")
+    public Long getId() { return uid; }
 }

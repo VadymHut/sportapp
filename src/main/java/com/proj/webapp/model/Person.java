@@ -19,7 +19,6 @@ public abstract class Person
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long peId;
 
     @NotBlank
@@ -81,4 +80,7 @@ public abstract class Person
     {
         normalize();
     }
+
+    @JsonProperty("id")
+    public Long getId() { return peId; }
 }

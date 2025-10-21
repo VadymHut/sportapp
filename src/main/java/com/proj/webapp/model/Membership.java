@@ -1,5 +1,7 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -24,15 +26,18 @@ public class Membership {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "c_id", nullable = false)
     @NotNull
+    @JsonIgnore
     private Client client;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "t_id")
+    @JsonIgnore
     private Trainer trainer;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "pl_id", nullable = false)
     @NotNull
+    @JsonIgnore
     private MembershipPlan membershipPlan;
 
     @NotNull
@@ -57,6 +62,9 @@ public class Membership {
     @OneToMany(mappedBy = "membership", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE },
             orphanRemoval = true)
     @OrderBy("visitedAt DESC")
+    @JsonIgnore
     private List<CheckIn> checkIns = new ArrayList<>();
 
+    @JsonProperty("id")
+    public Long getId() { return mId; }
 }

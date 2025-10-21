@@ -1,5 +1,6 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -25,10 +26,13 @@ public class Staff extends Person {
 
     @OneToOne(mappedBy = "staff", cascade = CascadeType.REMOVE)
     @ToString.Exclude
+    @JsonIgnore
     private AppUser account;
 
     @OneToMany(mappedBy = "staff", fetch = FetchType.LAZY)
     @ToString.Exclude
     @OrderBy("visitedAt DESC")
+    @JsonIgnore
     private List<CheckIn> checkIns = new ArrayList<>();
+
 }

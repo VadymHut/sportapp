@@ -22,4 +22,5 @@ public class Client extends Person {
     @OrderBy("startingDate DESC")
     @JsonIgnore
     private List<Membership> memberships = new ArrayList<>();
+
 }

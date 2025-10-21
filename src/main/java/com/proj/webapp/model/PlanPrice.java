@@ -1,5 +1,6 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -43,4 +44,7 @@ public class PlanPrice
         return validTo == null || !validTo.isBefore(validFrom);
     }
 
+
+    @JsonProperty("id")
+    public Long getId() { return prId; }
 }

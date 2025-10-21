@@ -1,5 +1,6 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -26,5 +27,6 @@ public class Trainer extends Person
             cascade = { CascadeType.PERSIST, CascadeType.MERGE }
     )
     @OrderBy("startingDate DESC")
+    @JsonIgnore
     private List<Membership> memberships = new ArrayList<>();
 }
