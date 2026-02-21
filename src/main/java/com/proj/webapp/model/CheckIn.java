@@ -1,6 +1,9 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -17,19 +20,23 @@ public class CheckIn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    private Long chId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "m_id", nullable = false)
+    @JoinColumn(name = "membership_id", nullable = false)
     @NotNull
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Membership.class)
+    @JsonIdentityReference(alwaysAsId = true)
     private Membership membership;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "s_id", nullable = false)
+    @JoinColumn(name = "staff_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Staff.class)
+    @JsonIdentityReference(alwaysAsId = true)
     private Staff staff;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY) // client can't set it
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name = "visited_at", nullable = false)
     private Instant visitedAt;
 
@@ -40,5 +47,8 @@ public class CheckIn {
     }
 
     @JsonProperty("id")
-    public Long getId() { return chId; }
+    void setJsonId(Long id) { this.id = id; }
+
+    @JsonProperty("id")
+    public Long getId() { return id; }
 }

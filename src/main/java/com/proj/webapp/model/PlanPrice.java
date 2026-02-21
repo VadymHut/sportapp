@@ -1,6 +1,6 @@
 package com.proj.webapp.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -19,11 +19,13 @@ public class PlanPrice
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    private Long prId;
+    private Long id;
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "pl_id", nullable = false)
+    @JoinColumn(name = "membership_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private MembershipPlan membershipPlan;
 
     @PositiveOrZero
@@ -46,5 +48,8 @@ public class PlanPrice
 
 
     @JsonProperty("id")
-    public Long getId() { return prId; }
+    void setJsonId(Long id) { this.id = id; }
+
+    @JsonProperty("id")
+    public Long getId() { return id; }
 }

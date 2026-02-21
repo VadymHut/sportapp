@@ -51,7 +51,6 @@ public class ApiExceptionHandler
         return Map.of("message", "Conflict with existing data");
     }
 
-    // optional: method-param validation from @Validated services
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleConstraintViolations(ConstraintViolationException ex)
@@ -63,4 +62,12 @@ public class ApiExceptionHandler
                 ));
         return Map.of("message", "Validation failed", "errors", errors);
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String,String> handleIllegalState(IllegalStateException ex)
+    {
+        return Map.of("message", ex.getMessage());
+    }
+
 }

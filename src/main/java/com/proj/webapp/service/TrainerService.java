@@ -24,7 +24,7 @@ public class TrainerService
 
     public Trainer create(@Valid @NotNull Trainer newTrainer)
     {
-        if (newTrainer.getPeId() != null)
+        if (newTrainer.getId() != null)
         {
             throw new IllegalArgumentException("peId should not be set");
         }
@@ -45,6 +45,14 @@ public class TrainerService
     public List<Trainer> listAll()
     {
         return trainerRepo.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Trainer> listPaged(String q, Pageable pageable) {
+        if (q == null || q.isBlank()) {
+            return trainerRepo.findAll(pageable);
+        }
+        return trainerRepo.searchByTerm(q.toLowerCase(), pageable);
     }
 
     public Trainer update(@NotNull Long id, @Valid @NotNull Trainer editedTrainer)

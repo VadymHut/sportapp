@@ -1,7 +1,6 @@
 package com.proj.webapp.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -22,10 +21,12 @@ public class AppUser
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long uid;
+    private Long id;
 
     @OneToOne(optional = false)
-    @JoinColumn(name = "sid", nullable = false, unique = true)
+    @JoinColumn(name = "staff_id", nullable = false, unique = true)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Staff staff;
 
     @NotNull
@@ -62,5 +63,8 @@ public class AppUser
     }
 
     @JsonProperty("id")
-    public Long getId() { return uid; }
+    void setJsonId(Long id) { this.id = id; }
+
+    @JsonProperty("id")
+    public Long getId() { return id; }
 }

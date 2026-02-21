@@ -26,7 +26,7 @@ public class StaffService
 
     public Staff create(@Valid @NotNull Staff newStaff)
     {
-        if (newStaff.getPeId() != null) {
+        if (newStaff.getId() != null) {
             throw new IllegalArgumentException("peId should not be set");
         }
         if (staffRepo.existsByPersonalCode(newStaff.getPersonalCode()))
@@ -46,6 +46,14 @@ public class StaffService
     public List<Staff> listAll()
     {
         return staffRepo.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Staff> listPaged(String q, Pageable pageable) {
+        if (q == null || q.isBlank()) {
+            return staffRepo.findAll(pageable);
+        }
+        return staffRepo.searchByTerm(q.toLowerCase(), pageable);
     }
 
     public Staff update(@NotNull Long id, @Valid @NotNull Staff editedStaff)

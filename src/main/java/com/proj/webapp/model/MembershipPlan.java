@@ -24,7 +24,7 @@ public class MembershipPlan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    private Long plId;
+    private Long id;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -66,5 +66,8 @@ public class MembershipPlan {
 
 
     @JsonProperty("id")
-    public Long getId() { return plId; }
+    void setJsonId(Long id) { this.id = id; }
+
+    @JsonProperty("id")
+    public Long getId() { return id; }
 }

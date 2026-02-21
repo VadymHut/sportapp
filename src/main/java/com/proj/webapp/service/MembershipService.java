@@ -1,16 +1,14 @@
 package com.proj.webapp.service;
 
-import com.proj.webapp.model.Client;
-import com.proj.webapp.model.Membership;
-import com.proj.webapp.model.MembershipPlan;
-import com.proj.webapp.model.Trainer;
-import com.proj.webapp.repo.ClientRepo;
-import com.proj.webapp.repo.MembershipPlanRepo;
-import com.proj.webapp.repo.MembershipRepo;
-import com.proj.webapp.repo.TrainerRepo;
+import com.proj.webapp.dto.MembershipInfo;
+import com.proj.webapp.model.*;
+import com.proj.webapp.repo.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -28,32 +26,39 @@ public class MembershipService
     private final ClientRepo clientRepo;
     private final TrainerRepo trainerRepo;
     private final MembershipPlanRepo membershipPlanRepo;
+    private final CheckInRepo checkInRepo;
 
-    public Membership create(@Valid @NotNull Membership newMembership)
-    {
-        if (newMembership.getMId() != null)
-            throw new IllegalArgumentException("mId should not be set");
-        if (newMembership.getClient() == null || newMembership.getClient().getPeId() == null)
+    public Membership create(@Valid @NotNull Membership body) {
+        if (body.getId() != null) throw new IllegalArgumentException("mId should not be set");
+
+        if (body.getClient() == null || body.getClient().getId() == null)
             throw new IllegalArgumentException("client id is required");
-        if (newMembership.getMembershipPlan() == null || newMembership.getMembershipPlan().getPlId() == null)
-            throw new IllegalArgumentException("membershipPlan id is required");
+        var client = clientRepo.findById(body.getClient().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+        body.setClient(client);
 
-        Client client = clientRepo.findById(newMembership.getClient().getPeId()).orElseThrow(() -> new IllegalArgumentException("Client not found"));
-
-        MembershipPlan plan = membershipPlanRepo.findById(newMembership.getMembershipPlan().getPlId()).orElseThrow(() -> new IllegalArgumentException("MembershipPlan not found"));
-
-        newMembership.setClient(client);
-        newMembership.setMembershipPlan(plan);
-
-        if (newMembership.getTrainer() != null)
-        {
-            Long tId = newMembership.getTrainer().getPeId();
-            Trainer trainer = (tId == null) ? null : trainerRepo.findById(tId).orElseThrow(() -> new IllegalArgumentException("Trainer not found"));
-            newMembership.setTrainer(trainer);
+        if (body.getTrainer() != null) {
+            Long tId = body.getTrainer().getId();
+            if (tId != null) {
+                var trainer = trainerRepo.findById(tId)
+                        .orElseThrow(() -> new IllegalArgumentException("Trainer not found"));
+                body.setTrainer(trainer);
+            } else {
+                body.setTrainer(null);
+            }
         }
 
-        return membershipRepo.save(newMembership);
+        if (body.getMembershipPlan() == null || body.getMembershipPlan().getId() == null)
+            throw new IllegalArgumentException("membershipPlan id is required");
+        var plan = membershipPlanRepo.findById(body.getMembershipPlan().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Plan not found"));
+        body.setMembershipPlan(plan);
+
+        ensureTrainerMatchesPlanActivity(body.getTrainer(), body.getMembershipPlan());
+
+        return membershipRepo.save(body);
     }
+
 
     @Transactional(readOnly = true)
     public Membership getById(@NotNull Long id)
@@ -64,35 +69,52 @@ public class MembershipService
     @Transactional(readOnly = true)
     public List<Membership> listAll()
     {
-        return membershipRepo.findAll();
+        return membershipRepo.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Membership> listPaged(String q, Pageable pageable) {
+        if (q == null || q.isBlank()) {
+            return membershipRepo.findAll(pageable);
+        }
+        return membershipRepo.searchByTerm(q.toLowerCase(), pageable);
     }
 
 
-    public Membership update(@NotNull Long id, @Valid @NotNull Membership edited) {
+    public Membership update(@NotNull Long id, @Valid @NotNull Membership body) {
         var existing = membershipRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Membership with id " + id + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
 
-        if (edited.getMembershipPlan() != null && edited.getMembershipPlan().getPlId() != null)
-        {
-            var plan = membershipPlanRepo.findById(edited.getMembershipPlan().getPlId())
-                    .orElseThrow(() -> new IllegalArgumentException("MembershipPlan not found"));
+        if (body.getClient() != null && body.getClient().getId() != null) {
+            var client = clientRepo.findById(body.getClient().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+            existing.setClient(client);
+        }
+
+        if (body.getTrainer() != null) {
+            Long tId = body.getTrainer().getId();
+            if (tId != null) {
+                var trainer = trainerRepo.findById(tId)
+                        .orElseThrow(() -> new IllegalArgumentException("Trainer not found"));
+                existing.setTrainer(trainer);
+            } else {
+                existing.setTrainer(null);
+            }
+        }
+
+        if (body.getMembershipPlan() != null && body.getMembershipPlan().getId() != null) {
+            var plan = membershipPlanRepo.findById(body.getMembershipPlan().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Plan not found"));
             existing.setMembershipPlan(plan);
         }
 
-        if (edited.getTrainer() != null)
-        {
-            Long tId = edited.getTrainer().getPeId();
-            var trainer = (tId == null) ? null : trainerRepo.findById(tId).orElseThrow(() -> new IllegalArgumentException("Trainer not found"));
-            existing.setTrainer(trainer);
-        }
+        if (body.getStartingDate() != null) existing.setStartingDate(body.getStartingDate());
 
-        if (edited.getStartingDate() != null)
-        {
-            existing.setStartingDate(edited.getStartingDate());
-        }
+        ensureTrainerMatchesPlanActivity(existing.getTrainer(), existing.getMembershipPlan());
 
         return existing;
     }
+
 
     public void delete(@NotNull Long id)
     {
@@ -106,19 +128,19 @@ public class MembershipService
     @Transactional(readOnly = true)
     public List<Membership> listByClient(@NotNull Long clientId)
     {
-        return membershipRepo.findByClient_PeId(clientId);
+        return membershipRepo.findByClient_id(clientId);
     }
 
     @Transactional(readOnly = true)
     public List<Membership> listByTrainer(@NotNull Long trainerId)
     {
-        return membershipRepo.findByTrainer_PeId(trainerId);
+        return membershipRepo.findByTrainer_id(trainerId);
     }
 
     @Transactional(readOnly = true)
     public List<Membership> listByPlan(@NotNull Long planId)
     {
-        return membershipRepo.findByMembershipPlan_PlId(planId);
+        return membershipRepo.findByMembershipPlan_id(planId);
     }
 
 
@@ -137,5 +159,84 @@ public class MembershipService
             m.setTrainer(t);
         }
         return m;
+    }
+
+    private void ensureTrainerMatchesPlanActivity(Trainer trainer, MembershipPlan plan) {
+        if (trainer == null || plan == null) {
+            return;
+        }
+
+        var trainerActivity = trainer.getActivity();
+        var planActivity = plan.getActivityType();
+
+        if (trainerActivity != null && planActivity != null && !trainerActivity.equals(planActivity)) {
+            throw new IllegalArgumentException("Trainer activity must match membership plan activity");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public MembershipInfo getMembershipInfo(Long id) {
+        Membership m = membershipRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
+
+        var client = m.getClient();
+        var trainer = m.getTrainer();
+        var plan = m.getMembershipPlan();
+
+        String planLabel = null;
+        if (plan != null) {
+            String a = plan.getActivityType() != null ? plan.getActivityType().name() : "-";
+            String g = plan.getGroupType() != null ? plan.getGroupType().name() : "-";
+            String f = plan.getFrequencyType() != null ? plan.getFrequencyType().name() : "-";
+            planLabel = a + " / " + g + " / " + f;
+        }
+
+        int maxVisits;
+        if (plan == null || plan.getFrequencyType() == null) {
+            maxVisits = 0;
+        } else {
+            maxVisits = switch (plan.getFrequencyType()) {
+                case UNLIMITED -> Integer.MAX_VALUE;
+                case ONCE -> 1;
+                case EIGHT -> 8;
+                case TWELVE -> 12;
+            };
+        }
+
+        var checkIns = m.getCheckIns().stream()
+                .sorted(java.util.Comparator.comparing(
+                        com.proj.webapp.model.CheckIn::getVisitedAt
+                ))
+                .map(ci -> new MembershipInfo.CheckInInfo(
+                        ci.getId(),
+                        ci.getVisitedAt(),
+                        ci.getStaff() != null ? ci.getStaff().getId() : null,
+                        ci.getStaff() != null ? ci.getStaff().getName() : null,
+                        ci.getStaff() != null ? ci.getStaff().getSurname() : null
+                ))
+                .toList();
+
+        return new MembershipInfo(
+                m.getId(),
+
+                client != null ? client.getId() : null,
+                client != null ? client.getName() : null,
+                client != null ? client.getSurname() : null,
+                client != null ? client.getPersonalCode() : null,
+
+                trainer != null ? trainer.getId() : null,
+                trainer != null ? trainer.getName() : null,
+                trainer != null ? trainer.getSurname() : null,
+
+                plan != null ? plan.getId() : null,
+                planLabel,
+
+                m.getStartingDate(),
+                m.getEndingDate(),
+
+                maxVisits,
+
+                checkIns
+        );
     }
 }

@@ -8,8 +8,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -29,14 +28,14 @@ public class MembershipPlanService
 
     public MembershipPlan create(@Valid @NotNull MembershipPlan plan)
     {
-        if (plan.getPlId() != null) throw new IllegalArgumentException("plId should not be set");
+        if (plan.getId() != null) throw new IllegalArgumentException("plId should not be set");
         try
         {
             return membershipPlanRepo.save(plan);
         }
         catch (DataIntegrityViolationException e)
         {
-            throw new IllegalArgumentException("A plan with the same activity/group/frequency already exists");
+            throw new IllegalArgumentException("A plan with the same activity / group / frequency already exists");
         }
     }
 
@@ -49,7 +48,7 @@ public class MembershipPlanService
     @Transactional(readOnly = true)
     public List<MembershipPlan> listAll()
     {
-        return membershipPlanRepo.findAll();
+        return membershipPlanRepo.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
 
@@ -65,7 +64,7 @@ public class MembershipPlanService
         }
         catch (DataIntegrityViolationException e)
         {
-            throw new IllegalArgumentException("A plan with the same activity/group/frequency already exists");
+            throw new IllegalArgumentException("A plan with the same activity / group / frequency already exists");
         }
     }
 
@@ -75,7 +74,7 @@ public class MembershipPlanService
 
         if (membershipRepo.existsByMembershipPlan(plan))
         {
-            throw new IllegalStateException("Cannot delete a plan that has memberships; reassign or end them first");
+            throw new IllegalStateException("Cannot delete a plan that has memberships");
         }
         planPriceRepo.deleteAll(planPriceRepo.findByMembershipPlan(plan));
         membershipPlanRepo.delete(plan);

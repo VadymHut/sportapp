@@ -8,7 +8,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "client")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @ToString(callSuper = true, exclude = "memberships")
 public class Client extends Person {
@@ -22,5 +23,6 @@ public class Client extends Person {
     @OrderBy("startingDate DESC")
     @JsonIgnore
     private List<Membership> memberships = new ArrayList<>();
+
 
 }

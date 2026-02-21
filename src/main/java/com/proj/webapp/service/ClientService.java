@@ -5,6 +5,8 @@ import com.proj.webapp.repo.ClientRepo;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +23,7 @@ public class ClientService
 
     public Client create(@Valid @NotNull Client newClient)
     {
-        if (newClient.getPeId() != null) throw new IllegalArgumentException("peId should not be set");
+        if (newClient.getId() != null) throw new IllegalArgumentException("peId should not be set");
 
         if (clientRepo.existsByPersonalCode(newClient.getPersonalCode())) throw new IllegalArgumentException("A person with such a personal code already exists");
 
@@ -38,6 +40,13 @@ public class ClientService
         return clientRepo.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public Page<Client> listPaged(String q, Pageable pageable) {
+        if (q == null || q.isBlank()) {
+            return clientRepo.findAll(pageable);
+        }
+        return clientRepo.searchByTerm(q.toLowerCase(), pageable);
+    }
 
     public Client update(@NotNull Long id, @Valid @NotNull Client editedClient)
     {

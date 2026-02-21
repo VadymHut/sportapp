@@ -1,7 +1,6 @@
 package com.proj.webapp.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -21,23 +20,26 @@ public class Membership {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    private Long mId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "c_id", nullable = false)
+    @JoinColumn(name = "client_id", nullable = false)
     @NotNull
-    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Client.class)
+    @JsonIdentityReference(alwaysAsId = true)
     private Client client;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "t_id")
-    @JsonIgnore
+    @JoinColumn(name = "trainer_id")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Trainer.class)
+    @JsonIdentityReference(alwaysAsId = true)
     private Trainer trainer;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "pl_id", nullable = false)
+    @JoinColumn(name = "plan_id", nullable = false)
     @NotNull
-    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = MembershipPlan.class)
+    @JsonIdentityReference(alwaysAsId = true)
     private MembershipPlan membershipPlan;
 
     @NotNull
@@ -66,5 +68,8 @@ public class Membership {
     private List<CheckIn> checkIns = new ArrayList<>();
 
     @JsonProperty("id")
-    public Long getId() { return mId; }
+    void setJsonId(Long id) { this.id = id; }
+
+    @JsonProperty("id")
+    public Long getId() { return id; }
 }

@@ -1,5 +1,6 @@
 package com.proj.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -19,7 +20,8 @@ public abstract class Person
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    private Long peId;
+    @JsonIgnore
+    private Long id;
 
     @NotBlank
     @Size(max = 50)
@@ -82,5 +84,8 @@ public abstract class Person
     }
 
     @JsonProperty("id")
-    public Long getId() { return peId; }
+    void setJsonId(Long id) { this.id = id; }
+
+    @JsonProperty("id")
+    public Long getId() { return id; }
 }

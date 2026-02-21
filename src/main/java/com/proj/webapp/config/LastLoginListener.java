@@ -1,6 +1,6 @@
 package com.proj.webapp.config;
 
-import com.proj.webapp.repo.AppUserRepo;
+import com.proj.webapp.service.AppUserService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.stereotype.Component;
@@ -8,21 +8,16 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 
 @Component
-public class LastLoginListener implements ApplicationListener<InteractiveAuthenticationSuccessEvent>
-{
-    private final AppUserRepo appUserRepo;
+public class LastLoginListener implements ApplicationListener<InteractiveAuthenticationSuccessEvent> {
 
-    public LastLoginListener(AppUserRepo appUserRepo)
-    {
-        this.appUserRepo = appUserRepo;
+    private final AppUserService appUserService;
+
+    public LastLoginListener(AppUserService appUserService) {
+        this.appUserService = appUserService;
     }
 
     @Override
-    public void onApplicationEvent(InteractiveAuthenticationSuccessEvent event)
-    {
-        String login = event.getAuthentication().getName().toLowerCase();
-        appUserRepo.findByLogin(login).ifPresent(u -> {
-            u.setLastLoginAt(Instant.now());
-        });
+    public void onApplicationEvent(InteractiveAuthenticationSuccessEvent event) {
+        appUserService.recordLogin(event.getAuthentication().getName());
     }
 }
