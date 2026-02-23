@@ -11,26 +11,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class BootstrapAdmin {
 
-    @Value("${bootstrap.admin.login:admin}")
+    @Value("${bootstrap.admin.login}")
     private String adminLogin;
 
-    @Value("${bootstrap.admin.password:}")
+    @Value("${bootstrap.admin.password}")
     private String adminPassword;
 
-    @Value("${bootstrap.test.login:test123}")
-    private String testLogin;
-
-    @Value("${bootstrap.test.password:}")
-    private String testPassword;
-
     @Bean
-    CommandLineRunner createAdminIfEmpty(StaffRepo staffRepo,
-                                         AppUserRepo appUserRepo,
-                                         PasswordEncoder passwordEncoder) {
+    CommandLineRunner createAdminIfEmpty(
+            StaffRepo staffRepo,
+            AppUserRepo appUserRepo,
+            PasswordEncoder passwordEncoder
+    ) {
         return args -> {
             if (appUserRepo.count() > 0) return;
-            if (adminPassword == null || adminPassword.isBlank()) {
-                System.out.println("Admin password not set; skipping admin creation.");
+
+            if (adminLogin == null || adminLogin.isBlank()
+                    || adminPassword == null || adminPassword.isBlank()) {
+                System.out.println("Admin credentials not set; skipping admin creation.");
                 return;
             }
 
@@ -50,36 +48,6 @@ public class BootstrapAdmin {
             appUserRepo.save(admin);
 
             System.out.println("Admin user created: login=" + adminLogin);
-        };
-    }
-
-    @Bean
-    CommandLineRunner createAdminTestProfile(StaffRepo staffRepo,
-                                             AppUserRepo appUserRepo,
-                                             PasswordEncoder passwordEncoder) {
-        return args -> {
-            if (appUserRepo.count() > 2) return;
-            if (testPassword == null || testPassword.isBlank()) {
-                System.out.println("Test password not set; skipping test admin creation.");
-                return;
-            }
-
-            Staff staff = new Staff();
-            staff.setName("Carol");
-            staff.setSurname("Johnson");
-            staff.setPersonalCode("999997-99999");
-            staff.setEmail("admin3@example.com");
-            staff.setJobTitle("Administrator");
-            staff = staffRepo.save(staff);
-
-            AppUser admin = new AppUser();
-            admin.setStaff(staff);
-            admin.setLogin(testLogin);
-            admin.setPassword(passwordEncoder.encode(testPassword));
-            admin.setRole(Role.ROLE_ADMIN);
-            appUserRepo.save(admin);
-
-            System.out.println("Admin user created: login=" + testLogin);
         };
     }
 }
