@@ -67,4 +67,14 @@ public class AppUser
 
     @JsonProperty("id")
     public Long getId() { return id; }
+
+    public static AppUser create(Staff staff, String login, String passwordHash, Role role)
+    {
+        AppUser u = new AppUser();
+        u.setStaff(staff);
+        u.setLogin(login);
+        u.setPassword(passwordHash);
+        u.setRole(role);
+        return u;
+    }
 }

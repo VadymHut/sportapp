@@ -1,5 +1,9 @@
-package com.proj.webapp.model;
+/*
+package com.proj.webapp.config;
 
+import com.proj.webapp.model.AppUser;
+import com.proj.webapp.model.Role;
+import com.proj.webapp.model.Staff;
 import com.proj.webapp.repo.AppUserRepo;
 import com.proj.webapp.repo.StaffRepo;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,19 +39,17 @@ public class BootstrapAdmin {
             Staff staff = new Staff();
             staff.setName("System");
             staff.setSurname("Admin");
-            staff.setPersonalCode("999999-99999");
-            staff.setEmail("admin@example.com");
+            staff.setPersonalCode("999999-99991");
+            staff.setEmail("admin2@example.com");
             staff.setJobTitle("Administrator");
             staff = staffRepo.save(staff);
 
-            AppUser admin = new AppUser();
-            admin.setStaff(staff);
-            admin.setLogin(adminLogin);
-            admin.setPassword(passwordEncoder.encode(adminPassword));
-            admin.setRole(Role.ROLE_ADMIN);
+            AppUser admin = AppUser.create(staff, adminLogin, passwordEncoder.encode(adminPassword), Role.ROLE_ADMIN);
             appUserRepo.save(admin);
 
             System.out.println("Admin user created: login=" + adminLogin);
         };
     }
 }
+
+ */

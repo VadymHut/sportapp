@@ -5,3 +5,4 @@ target
 .git
 .DS_Store
 .env
+docker-stack-prod.yml

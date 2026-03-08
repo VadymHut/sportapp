@@ -2,6 +2,7 @@ package com.proj.webapp.config;
 
 import com.proj.webapp.model.AppUser;
 import com.proj.webapp.repo.AppUserRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +25,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.http.HttpMethod.GET;
@@ -31,6 +33,16 @@ import static org.springframework.http.HttpMethod.GET;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    @Value("${app.ip:}")
+    private String appIp;
+
+    @Value("${app.frontend.port:5173}")
+    private int frontendPort;
+
+    @Value("${app.domain:}")
+    private String domainName;
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -40,7 +52,27 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         var c = new CorsConfiguration();
-        c.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+
+        var origins = new ArrayList<>(List.of(
+                "http://localhost",
+                "http://localhost:5173",
+                "http://127.0.0.1",
+                "http://127.0.0.1:5173"
+        ));
+
+        if (appIp != null && !appIp.isBlank()) {
+            origins.add("http://" + appIp);
+            origins.add("http://" + appIp + ":" + frontendPort);
+            origins.add("https://" + appIp);
+            origins.add("https://" + appIp + ":" + frontendPort);
+        }
+
+        if (domainName != null && !domainName.isBlank()) {
+            origins.add("https://" + domainName);
+            origins.add("http://" + domainName);
+        }
+
+        c.setAllowedOrigins(origins);
         c.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         c.setAllowedHeaders(List.of("*"));
         c.setExposedHeaders(List.of("Content-Range"));

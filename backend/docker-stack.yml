@@ -1,10 +1,13 @@
 version: "3.9"
 
 services:
-  webapp:
-    image: webapp:1.0
-    ports:
-      - "8080:8080"
+  api:
+    image: gutvad/webapp:1.0
+
+    networks:
+      default:
+        aliases:
+          - api
 
     environment:
       SPRING_APPLICATION_NAME: webapp
@@ -15,10 +18,17 @@ services:
       SPRING_DATASOURCE_USERNAME: "${SPRING_DATASOURCE_USERNAME}"
       BOOTSTRAP_ADMIN_LOGIN: "${BOOTSTRAP_ADMIN_LOGIN}"
 
+      APP_IP: "${APP_IP}"
+      APP_FRONTEND_PORT: "${APP_FRONTEND_PORT}"
+
+      APP_DOMAIN: "${APP_DOMAIN}"
+      TRAEFIK_ACME_EMAIL: "${TRAEFIK_ACME_EMAIL}"
+
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "false"
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "false"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: "${SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA}"
 
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: INFO
       SERVER_ERROR_INCLUDE_MESSAGE: always
@@ -29,6 +39,14 @@ services:
         target: spring.datasource.password
       - source: bootstrap_admin_password
         target: bootstrap.admin.password
+
+  frontend:
+    image: gutvad/webapp-frontend:1.0
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: ingress
 
 secrets:
   db_password:

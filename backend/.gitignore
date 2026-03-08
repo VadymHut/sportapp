@@ -31,3 +31,5 @@ build/
 
 src/main/resources/application.properties
 .env
+docker-stack.rendered.yml
+docker-stack-prod.yml
