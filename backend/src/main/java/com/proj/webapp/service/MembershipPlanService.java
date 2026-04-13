@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +27,22 @@ public class MembershipPlanService
     private final MembershipRepo membershipRepo;
     private final PlanPriceRepo planPriceRepo;
 
-    public MembershipPlan create(@Valid @NotNull MembershipPlan plan)
-    {
-        if (plan.getId() != null) throw new IllegalArgumentException("plId should not be set");
+    public MembershipPlan create(@Valid @NotNull MembershipPlan plan) {
+        if (plan.getId() != null) {
+            throw new IllegalArgumentException("plId should not be set");
+        }
+
         try
         {
             return membershipPlanRepo.save(plan);
         }
-        catch (DataIntegrityViolationException e)
+        catch (DuplicateKeyException e)
         {
             throw new IllegalArgumentException("A plan with the same activity / group / frequency already exists");
+        }
+        catch (DataIntegrityViolationException e)
+        {
+            throw new IllegalArgumentException("Invalid membership plan data");
         }
     }
 

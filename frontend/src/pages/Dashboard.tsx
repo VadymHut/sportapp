@@ -53,9 +53,9 @@ type DashboardAnalytics = {
 
 const PALETTE = [
   '#1976d2', '#9c27b0', '#2e7d32', '#ed6c02', '#d32f2f',
-  '#0288d1', '#6d4c41', '#455a64', '#7b1fa2', '#00897b',
+  '#0288d1', '#6d4c41', '#f9a825', '#7b1fa2', '#00897b',
   '#c2185b', '#5d4037', '#303f9f', '#0097a7', '#558b2f',
-  '#f9a825', '#6a1b9a', '#1e88e5', '#e53935', '#8e24aa',
+  '#455a64', '#6a1b9a', '#1e88e5', '#e53935', '#8e24aa',
 ];
 const DEFAULT_COLOR = '#90a4ae';
 
@@ -139,7 +139,6 @@ export const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-
         <Grid size={{ xs: 12, md: 3 }}>
           <Card variant="outlined">
             <CardContent>

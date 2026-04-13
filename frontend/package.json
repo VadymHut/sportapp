@@ -16,6 +16,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/system": "^7.3.7",
+    "exceljs": "^4.4.0",
     "lodash-es": "4.17.23",
     "prop-types": "15.8.1",
     "ra-data-simple-rest": "5.14.0",

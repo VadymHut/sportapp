@@ -45,7 +45,14 @@ public class ClientService
         if (q == null || q.isBlank()) {
             return clientRepo.findAll(pageable);
         }
-        return clientRepo.searchByTerm(q.toLowerCase(), pageable);
+
+        String[] parts = q.trim().toLowerCase().split("\\s+");
+
+        if (parts.length == 1) {
+            return clientRepo.searchByTerm(parts[0], pageable);
+        }
+
+        return clientRepo.searchByTwoTerms(parts[0], parts[1], pageable);
     }
 
     public Client update(@NotNull Long id, @Valid @NotNull Client editedClient)

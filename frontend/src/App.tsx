@@ -27,6 +27,7 @@ import MembershipPriceSummary from './pages/MembershipPriceSummary';
 import ClientInfo from './pages/ClientInfo';
 import TrainerInfoPage from './pages/TrainerInfo';
 import PriceBoard from './pages/PriceBoard';
+import ImportDataPage from './pages/ImportDataPage';
 
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
@@ -63,10 +64,9 @@ export default function App() {
           <Route path="/client-info" element={<ClientInfo />} />
           <Route path="/trainer-info" element={<TrainerInfoPage />} />
           <Route path="/price-board" element={<PriceBoard />} />
+          <Route path="/import-data" element={<ImportDataPage />} />
         </CustomRoutes>
 
-
-           
         <Resource
           name="membership-plans"
           list={PlanList}
