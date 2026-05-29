@@ -60,6 +60,7 @@ const PALETTE = [
 const DEFAULT_COLOR = '#90a4ae';
 
 export const Dashboard = () => {
+  console.log('DEBUGGING 7:25');
   const [data, setData] = useState<DashboardAnalytics | null>(null);
   const [loading, setLoading] = useState(false);
 

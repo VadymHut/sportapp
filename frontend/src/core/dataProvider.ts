@@ -28,8 +28,24 @@ export const dataProvider = {
     const json = await res.json;
 
     const cr = res.headers?.get?.('Content-Range');
-    const total = cr ? parseInt(cr.split('/').pop() || '0', 10) : (Array.isArray(json) ? json.length : 0);
+    const total = cr
+        ? parseInt(cr.split('/').pop() || '0', 10)
+        : Array.isArray(json)
+            ? json.length
+            : 0;
 
     return { data: Array.isArray(json) ? json : json?.data ?? [], total };
+  },
+
+  async getMany(resource: string, params: any) {
+    const results = await Promise.all(
+        params.ids.map((id: number | string) =>
+            httpClient(`${API}/${resource}/${id}`).then(({ json }) => json)
+        )
+    );
+
+    return {
+      data: results,
+    };
   },
 };
